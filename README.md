@@ -1,69 +1,68 @@
-# Kitsune NDSS 2018 Reproduction
+# Kitsune NDSS 2018 论文复现
 
-This repository documents a course reproduction of Kitsune, an online and
-unsupervised network intrusion detection system based on an ensemble of
-autoencoders.
+本项目是 NDSS 2018 论文 Kitsune 的课程复现。Kitsune 面向在线、无监督的网络
+入侵检测，用一组小型自编码器学习正常流量，并以重构误差判断异常。
 
-The implementation is adapted from the authors' public
-[Kitsune-py](https://github.com/ymirsky/Kitsune-py) code under the MIT License.
-The original paper is:
+实现基于作者公开的
+[Kitsune-py](https://github.com/ymirsky/Kitsune-py)，遵循 MIT License。
+原始论文信息：
 
 > Yisroel Mirsky, Tomer Doitshman, Yuval Elovici, and Asaf Shabtai.
 > *Kitsune: An Ensemble of Autoencoders for Online Network Intrusion Detection.*
 > NDSS 2018.
 
-![Kitsune architecture](Kitsune_fig.png)
+![Kitsune 系统架构](Kitsune_fig.png)
 
-## Reproduction scope
+## 复现内容
 
-- Build the 100-dimensional AfterImage feature vector from network packets.
-- Split correlated features with the incremental feature mapper.
-- Train the KitNET autoencoder ensemble online without labels.
-- Evaluate the main Mirai experiment on the public 764,137-packet dataset.
-- Sweep `maxAE` over 1, 5, 10, and 20 to examine the speed/accuracy trade-off.
+- 使用 AfterImage 从数据包中提取 100 维统计特征。
+- 使用增量特征映射器，把强相关特征划分为若干子空间。
+- 在线训练 KitNET 自编码器集成，不使用人工标签。
+- 在公开的 764,137 个 Mirai 数据包上完成主实验。
+- 对 `maxAE = 1、5、10、20` 进行参数扫描，观察速度和精度的权衡。
 
-## Results
+## 复现结果
 
-The main run uses `maxAE=10`, `FM_grace=5000`, and `AD_grace=50000`.
+主实验参数为 `maxAE=10`、`FM_grace=5000`、`AD_grace=50000`。
 
-| Metric | Result |
+| 指标 | 结果 |
 |---|---:|
 | ROC AUC | 0.9042 |
-| TPR at FPR = 0 | 0.8159 |
-| TPR at FPR = 0.001 | 0.8160 |
-| Clean-traffic median RMSE | 0.0096 |
-| Attack-traffic median RMSE | 17.9590 |
-| Processing rate | 1,032 packets/s |
+| TPR @ FPR = 0 | 0.8159 |
+| TPR @ FPR = 0.001 | 0.8160 |
+| 干净流量 RMSE 中位数 | 0.0096 |
+| 攻击流量 RMSE 中位数 | 17.9590 |
+| 处理速率 | 1,032 包/秒 |
 
-Parameter sweep:
+参数扫描结果：
 
-| maxAE | Feature groups | Packets/s | AUC |
+| maxAE | 特征子空间数 | 处理速率（包/秒） | AUC |
 |---:|---:|---:|---:|
 | 1 | 100 | 598 | 0.9119 |
 | 5 | 31 | 885 | 0.9022 |
 | 10 | 16 | 1,032 | 0.9042 |
 | 20 | 12 | 1,013 | 0.9089 |
 
-The full numerical summaries are in `results/*_metrics.txt` and
-`results/maxae_summary.txt`. Figures are in `results/*.png`.
+完整指标见 `results/*_metrics.txt` 和 `results/maxae_summary.txt`，实验图见
+`results/*.png`。
 
-## Repository layout
+## 目录说明
 
-| Path | Purpose |
+| 路径 | 说明 |
 |---|---|
-| `Kitsune.py` | Main online training and detection loop |
-| `AfterImage.py` | Damped incremental statistics |
-| `netStat.py` | Network-channel grouping |
-| `FeatureExtractor.py` | Feature extraction wrapper |
-| `KitNET/` | Feature mapping and autoencoder ensemble |
-| `quickrun.py` | Small quick-start runner |
-| `study/` | Reproduction and analysis scripts |
-| `results/` | Metrics and figures from completed runs |
-| `original_code_backup/` | Upstream files before compatibility edits |
+| `Kitsune.py` | 在线训练与检测主流程 |
+| `AfterImage.py` | 阻尼增量统计实现 |
+| `netStat.py` | 网络通道划分 |
+| `FeatureExtractor.py` | 特征提取封装 |
+| `KitNET/` | 特征映射与自编码器集成 |
+| `quickrun.py` | 小样本快速运行脚本 |
+| `study/` | 完整实验与分析脚本 |
+| `results/` | 已完成实验的指标和图表 |
+| `original_code_backup/` | 兼容性修改前的原始代码 |
 
-## Environment
+## 运行环境
 
-Validated with Python 3.13.9 on macOS:
+已在 macOS 和 Python 3.13.9 上验证。安装依赖：
 
 ```bash
 python3 -m venv .venv
@@ -71,29 +70,28 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-## Data
+## 数据集
 
-The Mirai capture is not included because it is a large external dataset.
-Download the dataset from the authors' repository, extract it, and place
-`mirai.pcap` in the repository root:
+仓库不附带 Mirai 抓包文件，避免仓库体积过大。请从作者公开仓库下载数据集，
+解压后把 `mirai.pcap` 放在项目根目录：
 
 <https://github.com/ymirsky/Kitsune-py>
 
-## Run the reproduction
+## 运行复现
 
-Main experiment:
+运行主实验：
 
 ```bash
 python study/step3_full_run.py --pcap mirai.pcap --max-minutes 25
 ```
 
-Outputs:
+主实验会生成：
 
 - `results/full_rmse.csv`
 - `results/full_rmse.png`
 - `results/full_metrics.txt`
 
-Parameter sweep:
+运行参数扫描并汇总结果：
 
 ```bash
 python study/step3_full_run.py --max-ae 1  --out-prefix ae1
@@ -103,31 +101,27 @@ python study/step3_full_run.py --max-ae 20 --out-prefix ae20
 python study/step5_maxae_summary.py
 ```
 
-Small feature-inspection demo:
+运行小样本演示：
 
 ```bash
 python study/step1_features.py
 python quickrun.py --pcap study/demo6.pcap --limit 6 --fm-grace 2 --ad-grace 2
 ```
 
-## Implementation notes
+## 实现差异
 
-The public Python implementation differs from the paper in three places:
+公开 Python 实现与论文描述有三处差异，会影响复现数值与论文结果的直接比较：
 
-1. It extracts 100 features rather than the paper's 115 because the standalone
-   source-IP channel is commented out.
-2. The third 1D statistic is named `std` but returns variance.
-3. The HH and HpHp channel aggregation scopes differ from the paper's description.
+1. 实际提取 100 维特征，论文为 115 维，原因是单独统计源 IP 的通道被注释掉。
+2. 代码中的第三个一维统计量命名为 `std`，实际返回的是方差。
+3. HH 和 HpHp 通道的聚合范围与论文描述不完全一致。
 
-These differences and the evaluation limitations are discussed in the local
-course report. Scores are based on time-based labels because per-packet ground
-truth is unavailable for the public capture.
+公开抓包没有逐包真实标签，因此本次评估按时间区间划分干净流量和攻击流量。
 
-Compatibility edits for current NumPy versions were limited to replacing
-`np.Inf`/`numpy.Inf` and making the tshark path portable. See
-`original_code_backup/` for the pre-edit files.
+为兼容当前 NumPy 版本，代码只做了 `np.Inf`/`numpy.Inf` 替换和 tshark 路径适配。
+修改前文件保存在 `original_code_backup/`。
 
-## License
+## 许可证
 
-The upstream code and this reproduction are distributed under the MIT License.
-See [LICENSE](LICENSE) and [KitNET/LICENSE.txt](KitNET/LICENSE.txt).
+上游代码和本次复现均遵循 MIT License。详见 [LICENSE](LICENSE) 和
+[KitNET/LICENSE.txt](KitNET/LICENSE.txt)。
