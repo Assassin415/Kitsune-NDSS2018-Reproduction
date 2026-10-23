@@ -1,0 +1,23 @@
+.DS_Store
+.idea/
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+
+# Datasets and generated score tables are reproducible from the public dataset.
+*.pcap
+*.pcapng
+!study/demo6.pcap
+mirai.zip
+results/*.csv
+results/*.csv.gz
+
+# Course paper, slides, and source PDFs stay local.
+report/
+*.pptx
+*.pdf
+
+# Local IDE scratch file.
+/main.py
+

@@ -1,0 +1,6 @@
+# Kitsune-py 运行环境（已验证：Python 3.13.9 + macOS）
+Cython==3.3.0
+matplotlib==3.11.2
+numpy==2.5.3
+scapy==2.7.0
+scipy==1.18.1
