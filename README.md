@@ -1,7 +1,6 @@
 # Kitsune NDSS 2018 论文复现
 
-本项目是 NDSS 2018 论文 Kitsune 的课程复现。Kitsune 面向在线、无监督的网络
-入侵检测，用一组小型自编码器学习正常流量，并以重构误差判断异常。
+本项目是 NDSS 2018 论文 Kitsune 的课程复现。Kitsune 面向在线、无监督的网络入侵检测，用一组小型自编码器学习正常流量，并以重构误差判断异常。
 
 实现基于作者公开的
 [Kitsune-py](https://github.com/ymirsky/Kitsune-py)，遵循 MIT License。
